@@ -24,16 +24,13 @@ type Payload struct {
 func Beat(
 	ctx context.Context,
 	log log.Logger,
+	client *http.Client,
 	url string,
 	payload *Payload,
 ) error {
 	payloadJSON, err := json.Marshal(payload)
 	if err != nil {
 		return fmt.Errorf("telemetry crashed: %w", err)
-	}
-
-	client := &http.Client{
-		Timeout: 10 * time.Second,
 	}
 
 	send := func() {

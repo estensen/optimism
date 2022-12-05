@@ -122,6 +122,10 @@ func RollupNodeMain(ctx *cli.Context) error {
 			peerID = n.P2P().Host().ID().String()
 		}
 
+		beatClient := &http.Client{
+			Timeout: 10 * time.Second,
+		}
+
 		beatCtx, beatCtxCancel := context.WithCancel(context.Background())
 		payload := &heartbeat.Payload{
 			Version: version.Version,
@@ -131,7 +135,7 @@ func RollupNodeMain(ctx *cli.Context) error {
 			ChainID: cfg.Rollup.L2ChainID.Uint64(),
 		}
 		go func() {
-			if err := heartbeat.Beat(beatCtx, log, cfg.Heartbeat.URL, payload); err != nil {
+			if err := heartbeat.Beat(beatCtx, log, beatClient, cfg.Heartbeat.URL, payload); err != nil {
 				log.Error("heartbeat goroutine crashed", "err", err)
 			}
 		}()

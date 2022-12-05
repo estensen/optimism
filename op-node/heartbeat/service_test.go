@@ -35,9 +35,11 @@ func TestBeat(t *testing.T) {
 	}))
 	defer s.Close()
 
+	client := &http.Client{}
+
 	doneCh := make(chan struct{})
 	go func() {
-		_ = Beat(ctx, log.Root(), s.URL, &Payload{
+		_ = Beat(ctx, log.Root(), client, s.URL, &Payload{
 			Version: "v1.2.3",
 			Meta:    "meta",
 			Moniker: "yeet",
