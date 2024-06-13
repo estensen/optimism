@@ -48,11 +48,11 @@ func NewTraceProvider(logger log.Logger, m vm.Metricer, cfg vm.Config, prestateP
 }
 
 func (p *AsteriscTraceProvider) Get(ctx context.Context, pos types.Position) (common.Hash, error) {
-	traceIndex := pos.TraceIndex(p.gameDepth)
-	if !traceIndex.IsUint64() {
-		return common.Hash{}, errors.New("trace index out of bounds")
+	traceIndex, err := utils.CheckTraceIndexBounds(pos, p.gameDepth)
+	if err != nil {
+		return common.Hash{}, err
 	}
-	proof, err := p.loadProof(ctx, traceIndex.Uint64())
+	proof, err := p.loadProof(ctx, traceIndex)
 	if err != nil {
 		return common.Hash{}, err
 	}
@@ -65,11 +65,11 @@ func (p *AsteriscTraceProvider) Get(ctx context.Context, pos types.Position) (co
 }
 
 func (p *AsteriscTraceProvider) GetStepData(ctx context.Context, pos types.Position) ([]byte, []byte, *types.PreimageOracleData, error) {
-	traceIndex := pos.TraceIndex(p.gameDepth)
-	if !traceIndex.IsUint64() {
-		return nil, nil, nil, errors.New("trace index out of bounds")
+	traceIndex, err := utils.CheckTraceIndexBounds(pos, p.gameDepth)
+	if err != nil {
+		return nil, nil, nil, err
 	}
-	proof, err := p.loadProof(ctx, traceIndex.Uint64())
+	proof, err := p.loadProof(ctx, traceIndex)
 	if err != nil {
 		return nil, nil, nil, err
 	}

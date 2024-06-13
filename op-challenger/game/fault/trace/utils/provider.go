@@ -3,10 +3,12 @@ package utils
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"path/filepath"
 	"strconv"
 
+	"github.com/ethereum-optimism/optimism/op-challenger/game/fault/types"
 	preimage "github.com/ethereum-optimism/optimism/op-preimage"
 	"github.com/ethereum-optimism/optimism/op-service/ioutil"
 	"github.com/ethereum/go-ethereum/common"
@@ -93,4 +95,12 @@ func PreimageLargerThan(size int) PreimageOpt {
 	return func() preimageOpts {
 		return []string{"--stop-at-preimage-larger-than", strconv.Itoa(size)}
 	}
+}
+
+func CheckTraceIndexBounds(pos types.Position, gameDepth types.Depth) (uint64, error) {
+	traceIndex := pos.TraceIndex(gameDepth)
+	if !traceIndex.IsUint64() {
+		return 0, errors.New("trace index out of bounds")
+	}
+	return traceIndex.Uint64(), nil
 }
