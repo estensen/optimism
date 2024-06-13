@@ -1,11 +1,10 @@
 package asterisc
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
 
 	"github.com/ethereum-optimism/optimism/cannon/mipsevm"
+	"github.com/ethereum-optimism/optimism/op-challenger/game/fault/trace/vm"
 	"github.com/ethereum-optimism/optimism/op-service/ioutil"
 )
 
@@ -58,13 +57,8 @@ func parseState(path string) (*VMState, error) {
 	if err != nil {
 		return nil, fmt.Errorf("cannot open state file (%v): %w", path, err)
 	}
-	return parseStateFromReader(file)
-}
-
-func parseStateFromReader(in io.ReadCloser) (*VMState, error) {
-	defer in.Close()
 	var state VMState
-	if err := json.NewDecoder(in).Decode(&state); err != nil {
+	if err := vm.ParseStateFromReader(file, &state); err != nil {
 		return nil, fmt.Errorf("invalid asterisc VM state %w", err)
 	}
 	if err := state.validateState(); err != nil {

@@ -1,11 +1,10 @@
 package cannon
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
 
 	"github.com/ethereum-optimism/optimism/cannon/mipsevm"
+	"github.com/ethereum-optimism/optimism/op-challenger/game/fault/trace/vm"
 	"github.com/ethereum-optimism/optimism/op-service/ioutil"
 )
 
@@ -14,13 +13,8 @@ func parseState(path string) (*mipsevm.State, error) {
 	if err != nil {
 		return nil, fmt.Errorf("cannot open state file (%v): %w", path, err)
 	}
-	return parseStateFromReader(file)
-}
-
-func parseStateFromReader(in io.ReadCloser) (*mipsevm.State, error) {
-	defer in.Close()
 	var state mipsevm.State
-	if err := json.NewDecoder(in).Decode(&state); err != nil {
+	if err := vm.ParseStateFromReader(file, &state); err != nil {
 		return nil, fmt.Errorf("invalid mipsevm state: %w", err)
 	}
 	return &state, nil
